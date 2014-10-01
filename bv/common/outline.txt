@@ -1,0 +1,125 @@
+
+@root common
+
+@module chunk
+
+    Chunk encoder/decoder
+    
+        Chunks encode a volumetric world in chunks of 16x16x256-unit sections.
+        
+        Zlib compression is used to reduce encoded data size.
+        If the chunk contains any 16-bit block IDs a lookup table may be used to map 8-bit RLE
+        values to the appropriate 16-bit block IDs to avoid redundant data if the number of unique
+        block indices in a chunk is less-than 256 (usually) failing that the RLE will encode 16-bit
+        block indices.
+        
+        Chunks also contain a biome/generator system for generation of new chunks as a chunkoid is explored.
+        The chunkoid's containing-quadrant's starsystem type will further affect biome resource generation.
+        
+        Chunks may be of arbitrary size (well it has an upper limit but is VERY large)
+        
+        Biome flags:
+            Wet
+                - High precip
+            Arid
+                - Low precip (both flags off = normal precip)
+            Polar
+                - Low temperature (snow/ice at surface)
+            Hot
+                - High temperature
+            Humid
+                - high air humidity
+            River
+                - river generated in biome
+            Fertile
+                - plants can grow
+            Trees
+                - trees can grow
+            Mountanous
+                - high mountain formations generated
+            Hills
+                - hilly terrain generated
+            Coastal
+                - ocean proximity
+            Ocean
+                - great blue yonder
+            Waterbody
+                - generate stationary water body (not rivers eg: lakes/ponds/marshes)
+            Geothermal
+                - high volcanic/igneous type content/thermals/etc
+        
+            Biome flags are combined to create specific biome types:
+            
+            Examples:
+                Desert:
+                    arid + hot
+                Tropics:
+                    humid + hot + fertile
+                Rainforest:
+                    humid & wet & fertile & trees
+                Savannah:
+                    arid + fertile
+                dense forestation:
+                    fertile & trees & !arid
+                normal forestation:
+                    trees & !arid
+                low forestation
+                    trees & arid
+                no trees
+                    arid & hot
+                Extreme mountainous:
+                    mountainous + hills
+                Flatlands:
+                    !mountainous & !hills
+                Plains:
+                    !mountains & !hills & fertile & !arid
+                Marsh:
+                    wet & humid & !fertile
+                Swamp:
+                    wet & humid & !fertile & waterbody
+                Rapids/Waterfalls:
+                    river & mountainous
+                Valley:
+                    river & hills
+                Canyon:
+                    river & hills & mountainous
+
+@module quadrant
+
+    Quadrant encoder/decoder
+    
+        Quadrants encode a 3D expanding universe of arbitrary objects by object identifiers
+        optimized for sparsely populated data over very large areas.
+        
+        Identifiers reference either chunkoids (eg: planets) or other movable objects.
+        
+        Quadrant's parallel to chunkoid's biome attribute is its starsystem attribute.
+        
+        VOIDSPACE
+            No stars in system meaning space debris is low quality smaller asteroid
+            type masses.  Chunkoids have tiny maximum size and of very low resource value probability.
+            Resources with type 'ejecta' (stuff spewed from some neighbouring system)
+            may spawn on chunkoids within this starsystem type.  Lowest chance of
+            black hole spawn (safest to cross during highspeed insterstellar travel).  Lowest
+            chunkoid generation of lowest size.  Highest spawn rate of ejecta resources.
+    
+        SMALLNOVA
+            Starsystem formed due to a low-volume supernova.  Chunkoids have tiny-small
+            sizes.  Small chunkoids are the smallest of planets having a small maximum
+            size but are an order larger than the tiny chunkoids of void space.
+            low chance of black hole spawn.  Low chunkoid generation but an order of
+            magnitude better than voidspace.  Low---but higher---risk for highspeed
+            interstellar travel.
+
+        MODERATENOVA
+            Starsystem formed from an average-volume supernova.  Chunkoids have moderate
+            maximum sizes and are an order of magnitude above smallnova chunkoids.  Average
+            chance of blackhole spawn and average chunkoid generation of average chunkoid
+            size.  Moderate risk to highspeed interstellar travel.
+    
+        HUGENOVA
+            Starsystem formed from a huge mass supernova.  Chunkoids have largest sizes and
+            highest resource availabilities.  However hugenova starsystems also have highest
+            chance of blackhole spawn (most risky for highspeed interstellar travel).  Highest
+            and largest chunkoid generation (also a risk to highspeed interstellar travel).
+            Lowest spawn rate for ejecta resources.
