@@ -8,10 +8,26 @@
         Chunks encode a volumetric world in chunks of 16x16x256-unit sections.
         
         Zlib compression is used to reduce encoded data size.
-        If the chunk contains any 16-bit block IDs a lookup table may be used to map 8-bit RLE
-        values to the appropriate 16-bit block IDs to avoid redundant data if the number of unique
-        block indices in a chunk is less-than 256 (usually) failing that the RLE will encode 16-bit
-        block indices.
+        Lose the RLE stuff as I'm going to use zlib-compressed chunks.
+        
+        So far plan for a chunk is simply:
+        [long32] biome designation (flagbits)
+            ([blk:long16],[attr:long16])x256 (one vertical strip top-to-bottom Y 255..0)
+                x16 one row (all strips along X -8..+7)
+                x16 one chunk (all rows along Z -8..+7)
+        
+        So length is 4+((2+2)*256*16*16) = 262148 (or just over 256 KB)
+        The chunks of a 16-chunk view distance would occupy about .197 GB
+        16*16*pi (805) * 262148
+        
+        If chunks are stored as separate nodes (most logical choice) scale/translate/rotate
+        are independent of other chunks so vertices may be reused since each chunk may use
+        geometry centered on 0,0,0 then translated as necessary to chunk's acutal world
+        position by the node.
+        
+        TODO: Investigate ways to reduce triangle load of loaded chunks.  Perhaps a viewpoint
+        reference (player/viewe's location) point for line-of-sight culling of non-visible
+        geometry by the chunk decoder?
         
         Chunks also contain a biome/generator system for generation of new chunks as a chunkoid is explored.
         The chunkoid's containing-quadrant's starsystem type will further affect biome resource generation.
