@@ -1,4 +1,17 @@
 Blockiverse
 ===========
 
-Open source sandbox game of placing and removing blocks, survival, and building spaceships to explore even further.
+Mine blocks.
+Craft stuff.
+Build spaceship.
+To lightspeed and beyond!
+
+Place and remove blocks to survive the night, then build a spaceship to explore the vast beyond.
+
+This project is an open source game similar in gameplay to the very popular Mojang (now M$) game.
+I figured it was time to make an open source alternative and lose the shackles of proprietary code
+thus allowing any future mod and plugin community to thrive without fear of takeovers like has
+actually just happened with the Mojang (now M$) game.
+
+The current choice of language/engine is Python/Panda3D both being quite mature and used
+successfully in large MMO-scale projects.
