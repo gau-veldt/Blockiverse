@@ -8,17 +8,26 @@ def decompress(decoder):
     Decorator to factor out chunk
     decompression logic from decoder routines
     """
-    def wrapper(blob,origin):
-        return decoder(zlib.decompress(blob),origin)
+    def wrapper(blob,origin,viewpoint):
+        return decoder(zlib.decompress(blob),origin,viewpoint)
     return wrapper
 
 from panda3d.core import Geom,GeomVertexFormat
 from panda3d.core import GeomTriangles,GeomNode
 
 @decompress
-def Chunk2Geom(chunk,origin):
+def Chunk2Geom(chunk,origin,viewpoint):
     """
     Decodes chunk into Panda3D geometry format
+    @param
+        chunk: encoded chunk
+        origin: chunk destination in world coordinates
+        viewpoint: viewer reference point in world coordinates
+                    (used for LOS culling of non-visible blocks
+                    to reduce triangle load)
+    @return
+        A panda3D Node object translated appropriately to place
+        the decoded chunk correctly within the world.
     """
     # determine where chunk should be placed in world space
     orgX=origin[0]
