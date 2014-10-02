@@ -81,8 +81,8 @@ class Chunk2GeomDecoder:
         # 32-bits for each of x,y,z,u,v and we won't even go there if primitives
         # only allow 16-bit shortword vertex indices).
         #
-        # triangle math when the chunk changes is also simplified greatly by having
-        # vertices involved are relative to only a single sliver
+        # triangle math when the chunk changes is also simplified greatly by
+        # having the vertices involved relative to only a single sliver
         #
 
     def setViewpoint(x,y,z):
