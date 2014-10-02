@@ -66,6 +66,24 @@ class Chunk2GeomDecoder:
         ]
         # Generate vertices for 1x1x256 'sliver'
         # starting at bottom (z=0), towards top (z=255)
+        #
+        # The planned decoder alogrithm is to share a single vertex set (3584 vtx)
+        # for all 1x1x256 slivers using one node per sliver to translate to the
+        # appropriate cell (16x16) within the chunk, parented to a final chunk
+        # node to translate chunk to the appropriate world location.
+        #
+        # NB: pi r squared for 16-chunk visibility (so r=16 thus 256*pi) is 805
+        #     chunks (rounded up) at 360 degree visibility
+        #
+        # 257 nodes per chunk (257*805 thus 206885 nodes at full 16-chunk
+        # visibility) seems a better space complexity (3584 vtx)than 917504
+        # vertices using 805 nodes (nearly 20 MB for the vertex array assuming
+        # 32-bits for each of x,y,z,u,v and we won't even go there if primitives
+        # only allow 16-bit shortword vertex indices).
+        #
+        # triangle math when the chunk changes is also simplified greatly by having
+        # vertices involved are relative to only a single sliver
+        #
 
     def setViewpoint(x,y,z):
         self.viewPoint=(x,y,z)
