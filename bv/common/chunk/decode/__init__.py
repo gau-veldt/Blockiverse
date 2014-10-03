@@ -103,7 +103,7 @@ class Chunk2GeomDecoder:
         self.viewPoint=(x,y,z)
 
     @decompress
-    def Chunk2Geom(self,chunk,origin):
+    def Chunk2Geom(self,sChunk,origin):
         """
         Decodes chunk into Panda3D geometry format
         @param
@@ -126,8 +126,33 @@ class Chunk2GeomDecoder:
         # generate name tags for the various parts
         chunkId="%s_%s" % (chunkX,chunkY)
         vtxName="vtx_%s" % chunkId
-        nodeName="node_%s" % chunkId
+        nodeName="chunk_%s" % chunkId
+        # create empty node for entire chunk
+        chunkNode=render.attachNewNode(nodeName)
+        # convert string chunk to numeric
+        chunk=[ord(c) for c in sChunk]
         # TODO: read chunk data and generate cube nodes
+        flags=chunk[0]+(chunk[1]<<8)+(chunk[2]<<16)+(chunk[3]<<24)
+        chunk=chunk[4:] # remove biome/flagbits
+        for cY in range(16):
+            for cX in range(16):
+                for cZ in range(256):
+                    cell=cZ+(cX<<8)+(cY<<12)
+                    # lookup neighbours
+                    n_up=chunk[cell-1]    if cZ>0   else 0
+                    n_dn=chunk[cell+1]    if cZ<255 else 0
+                    n_lt=chunk[cell-256]  if cX>0   else 0
+                    n_rt=chunk[cell+256]  if cX<15  else 0
+                    n_bk=chunk[cell-4096] if cY>0   else 0
+                    n_fd=chunk[cell+4096] if cY<15  else 0
+                    if n_up==0 or n_dn==0 or \
+                       n_lt==0 or n_rt==0 or \
+                       n_bk==0 or n_fd==0:
+                        # for any non-obscured block
+                        # generate a cube
+                        block=chunkNode.attachNewNode(chunkNode)
+                        block.setPos(cX,cY,cZ)
+        return chunkNode
 
 if __name__ == '__main__':
     pass
