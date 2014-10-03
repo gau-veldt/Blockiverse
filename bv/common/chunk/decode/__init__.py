@@ -127,7 +127,7 @@ class Chunk2GeomDecoder:
         chunkId="%s_%s" % (chunkX,chunkY)
         vtxName="vtx_%s" % chunkId
         nodeName="node_%s" % chunkId
-        # TODO: read chunk data and generate triangles
+        # TODO: read chunk data and generate cube nodes
 
 if __name__ == '__main__':
     pass
