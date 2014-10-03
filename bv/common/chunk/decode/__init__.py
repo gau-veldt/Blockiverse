@@ -152,6 +152,7 @@ class Chunk2GeomDecoder:
                         # generate a cube
                         block=chunkNode.attachNewNode(chunkNode)
                         block.setPos(cX,cY,cZ)
+        chunkNode.setPos(chunkX*16,chunkY*16,0)
         return chunkNode
 
 if __name__ == '__main__':
