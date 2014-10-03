@@ -1,3 +1,3 @@
 @echo off
 python main.py
-if errorlevel 1 pause
+rem if errorlevel 1 pause

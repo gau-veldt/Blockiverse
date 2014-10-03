@@ -85,7 +85,7 @@ class Chunk2GeomDecoder:
         self.cubeVtx.setNumRows(len(self.cubeVtxSrc))
         vtxW=GeomVertexWriter(self.cubeVtx,'vertex')
         txcW=GeomVertexWriter(self.cubeVtx,'texcoord')
-        for vertex in self.cubeVertSrc:
+        for vertex in self.cubeVtxSrc:
             vtxW.addData3f(*vertex[0:3])
             txcW.addData2f(*vertex[3:5])
         #   2. mesh
