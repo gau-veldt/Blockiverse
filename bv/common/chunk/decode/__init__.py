@@ -20,6 +20,9 @@ class Chunk2GeomDecoder:
         Chunk decoder that decodes chunks to Panda3D Geoms/Nodes
     """
     def __init__(self):
+        self.textures={}
+        tex=loader.loadTexture("testPat.png")
+        self.textures[1]=tex
         self.viewPoint=(0,0,0)
         self.cubeVtxSrc=[
             # 14 vertices per cube mapped
@@ -152,6 +155,7 @@ class Chunk2GeomDecoder:
                             block=GeomNode("%s_block_%s_%s_%s"%(nodeName,cX,cY,cZ))
                             block.addGeom(self.cubeGeom)
                             blockNode=chunkNode.attachNewNode(block)
+                            blockNode.setTexture(self.textures[me])
                             blockNode.setPos(cX,cY,cZ)
         chunkNode.setPos(chunkX*16,chunkY*16,-64)
         return chunkNode
