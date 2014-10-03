@@ -12,8 +12,8 @@ def decompress(decoder):
         return decoder(self,zlib.decompress(blob),origin)
     return wrapper
 
-from panda3d.core import Geom,GeomVertexFormat
-from panda3d.core import GeomTriangles,GeomNode
+from panda3d.core import Geom,GeomVertexFormat,GeomVertexData
+from panda3d.core import GeomTriangles,GeomNode,GeomVertexWriter
 
 class Chunk2GeomDecoder:
     """
@@ -21,7 +21,7 @@ class Chunk2GeomDecoder:
     """
     def __init__(self):
         self.viewPoint=(0,0,0)
-        self.cubeVerts=[
+        self.cubeVtxSrc=[
             # 14 vertices per cube mapped
             # so that UV coords utilize
             # the typical cube unwrap:
@@ -51,6 +51,8 @@ class Chunk2GeomDecoder:
             (1.00,1.00,1.00,0.75,0.75), # L
             (0.00,1.00,0.00,0.50,0.00), # M
             (1.00,1.00,0.00,0.75,0.00)  # N
+            ]
+        self.triSrc=[
             #
             #  Faces (QUAD/TRIPAIR)
             #  using RHR vertex ordering for
@@ -63,27 +65,39 @@ class Chunk2GeomDecoder:
             #    upper: KEGL/KEG+GLK
             #    lower: FMNH/FMN+NHF
             #
-        ]
-        # Generate vertices for 1x1x256 'sliver'
-        # starting at bottom (z=0), towards top (z=255)
+            "EFH","HGE",
+            "CAB","BDC",
+            "CDF","FEC",
+            "GHJ","JIG",
+            "KEG","GLK",
+            "FMN","NHF"
+            ]
         #
-        # The planned decoder alogrithm is to share a single vertex set (3584 vtx)
-        # for all 1x1x256 slivers using one node per sliver to translate to the
-        # appropriate cell (16x16) within the chunk, parented to a final chunk
-        # node to translate chunk to the appropriate world location.
+        # setup cube
         #
-        # NB: pi r squared for 16-chunk visibility (so r=16 thus 256*pi) is 805
-        #     chunks (rounded up) at 360 degree visibility
+        # one cube node will be generated per non-air block
+        # since different block id's potentially refer to
+        # different textures and thus must be separate nodes
+        # of the scene graph.
         #
-        # 257 nodes per chunk (257*805 thus 206885 nodes at full 16-chunk
-        # visibility) seems a better space complexity (3584 vtx)than 917504
-        # vertices using 805 nodes (nearly 20 MB for the vertex array assuming
-        # 32-bits for each of x,y,z,u,v and we won't even go there if primitives
-        # only allow 16-bit shortword vertex indices).
-        #
-        # triangle math when the chunk changes is also simplified greatly by
-        # having the vertices involved relative to only a single sliver
-        #
+        #   1. vertices
+        self.cubeVtx=GeomVertexData('blockCube',GeomVertexFormat.getV3t2(),Geom.UHStatic)
+        self.cubeVtx.setNumRows(len(self.cubeVtxSrc))
+        vtxW=GeomVertexWriter(self.cubeVtx,'vertex')
+        txcW=GeomVertexWriter(self.cubeVtx,'texcoord')
+        for vertex in self.cubeVertSrc:
+            vtxW.addData3f(*vertex[0:3])
+            txcW.addData2f(*vertex[3:5])
+        #   2. mesh
+        self.cubeMesh=GeomTriangles(Geom.UHStatic)
+        for tri in self.triSrc:
+            for triV in tri:
+                triVtxId=ord(triV)-65 # changea 'A'-'N' to 0-13
+                self.cubeMesh.addVertex(triVtxId)
+            self.cubeMesh.close_primitive()
+        #   3. geometry (primitive+vertex pair)
+        self.cubeGeom=Geom(self.cubeVtx)
+        self.cubeGeom.addPrimitive(self.cubeMesh)
 
     def setViewpoint(x,y,z):
         self.viewPoint=(x,y,z)
