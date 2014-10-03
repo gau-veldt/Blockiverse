@@ -107,11 +107,8 @@ class Chunk2GeomDecoder:
         """
         Decodes chunk into Panda3D geometry format
         @param
-            chunk: encoded chunk
-            origin: chunk destination in world coordinates
-            viewpoint: viewer reference point in world coordinates
-                        (used for LOS culling of non-visible blocks
-                        to reduce triangle load)
+            sChunk: encoded chunk
+            origin: chunk location in world as 3-tuple
         @return
             A panda3D Node object translated appropriately to place
             the decoded chunk correctly within the world.
@@ -122,7 +119,7 @@ class Chunk2GeomDecoder:
         orgZ=origin[2]
         # determine chunk's coordinate
         chunkX=orgX/16
-        chnukY=orgY/16
+        chunkY=orgY/16
         # generate name tags for the various parts
         chunkId="%s_%s" % (chunkX,chunkY)
         vtxName="vtx_%s" % chunkId
@@ -139,20 +136,24 @@ class Chunk2GeomDecoder:
                 for cZ in range(256):
                     cell=cZ+(cX<<8)+(cY<<12)
                     # lookup neighbours
-                    n_up=chunk[cell-1]    if cZ>0   else 0
-                    n_dn=chunk[cell+1]    if cZ<255 else 0
-                    n_lt=chunk[cell-256]  if cX>0   else 0
-                    n_rt=chunk[cell+256]  if cX<15  else 0
-                    n_bk=chunk[cell-4096] if cY>0   else 0
-                    n_fd=chunk[cell+4096] if cY<15  else 0
-                    if n_up==0 or n_dn==0 or \
-                       n_lt==0 or n_rt==0 or \
-                       n_bk==0 or n_fd==0:
-                        # for any non-obscured block
-                        # generate a cube
-                        block=chunkNode.attachNewNode(chunkNode)
-                        block.setPos(cX,cY,cZ)
-        chunkNode.setPos(chunkX*16,chunkY*16,0)
+                    me=chunk[cell]
+                    if me>0:
+                        n_up=chunk[cell-1]    if cZ>0   else 0
+                        n_dn=chunk[cell+1]    if cZ<255 else 0
+                        n_lt=chunk[cell-256]  if cX>0   else 0
+                        n_rt=chunk[cell+256]  if cX<15  else 0
+                        n_bk=chunk[cell-4096] if cY>0   else 0
+                        n_fd=chunk[cell+4096] if cY<15  else 0
+                        if n_up==0 or n_dn==0 or \
+                           n_lt==0 or n_rt==0 or \
+                           n_bk==0 or n_fd==0:
+                            # for any non-obscured block
+                            # generate a cube
+                            block=GeomNode("%s_block_%s_%s_%s"%(nodeName,cX,cY,cZ))
+                            block.addGeom(self.cubeGeom)
+                            blockNode=chunkNode.attachNewNode(block)
+                            blockNode.setPos(cX,cY,cZ)
+        chunkNode.setPos(chunkX*16,chunkY*16,-64)
         return chunkNode
 
 if __name__ == '__main__':

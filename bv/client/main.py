@@ -45,8 +45,7 @@ class ClientApp(ShowBase):
         sliver=(chr(1)*64)+(chr(0)*192)
         rawChunk+=sliver*16*16
         compressedChunk=zlib.compress(rawChunk)
-        with open("testRawChunk","wb") as f:
-            f.write(rawChunk)        
+        decoder.Chunk2Geom(compressedChunk,( 0, 0,0))
 
     def deskW(self):
         return self.deskSize[0]
