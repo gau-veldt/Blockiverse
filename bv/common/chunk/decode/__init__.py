@@ -14,6 +14,7 @@ def decompress(decoder):
 
 from panda3d.core import Geom,GeomVertexFormat,GeomVertexData
 from panda3d.core import GeomTriangles,GeomNode,GeomVertexWriter
+from panda3d.core import Texture
 
 texMap={
     1:"dirt.png",
@@ -32,6 +33,8 @@ class Chunk2GeomDecoder:
         for k in texMap:
             v=texMap[k]
             tex=loader.loadTexture("gfx/%s"%v)
+            tex.setWrapU(Texture.WM_clamp)
+            tex.setWrapV(Texture.WM_clamp)
             self.textures[k]=tex
         
         self.viewPoint=(0,0,0)
