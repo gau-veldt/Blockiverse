@@ -20,7 +20,7 @@ texMap={
     1:"dirt.png",
     2:"dirtgrass.png",
     3:"stone.png",
-    5:"testPat.png",
+    4:"testPat.png",
 }
 
 class Chunk2GeomDecoder:
