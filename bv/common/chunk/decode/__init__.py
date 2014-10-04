@@ -15,14 +15,25 @@ def decompress(decoder):
 from panda3d.core import Geom,GeomVertexFormat,GeomVertexData
 from panda3d.core import GeomTriangles,GeomNode,GeomVertexWriter
 
+texMap={
+    1:"dirt.png",
+    2:"dirtgrass.png",
+    3:"stone.png",
+    5:"testPat.png",
+}
+
 class Chunk2GeomDecoder:
     """
         Chunk decoder that decodes chunks to Panda3D Geoms/Nodes
     """
     def __init__(self):
+    
         self.textures={}
-        tex=loader.loadTexture("testPat.png")
-        self.textures[1]=tex
+        for k in texMap:
+            v=texMap[k]
+            tex=loader.loadTexture("gfx/%s"%v)
+            self.textures[k]=tex
+        
         self.viewPoint=(0,0,0)
         self.cubeVtxSrc=[
             # 14 vertices per cube mapped

@@ -2,7 +2,7 @@ import sys
 from direct.showbase.ShowBase import ShowBase
 from panda3d.core import WindowProperties,GraphicsPipe
 from direct.gui.DirectGui import *
-import zlib
+import zlib,random
 from bv.common.chunk.decode import Chunk2GeomDecoder
 
 class ClientApp(ShowBase):
@@ -42,10 +42,15 @@ class ClientApp(ShowBase):
         decoder=Chunk2GeomDecoder()
         
         rawChunk=chr(0)*4
-        sliver=(chr(1)*64)+(chr(0)*192)
-        rawChunk+=sliver*16*16
+        for a in range(16*16):
+            sliver=""
+            for k in range(64):
+                sliver+=chr(1+random.randint(0,2))
+            sliver+=(chr(0)*192)
+            rawChunk+=sliver
         compressedChunk=zlib.compress(rawChunk)
         chk=decoder.Chunk2Geom(compressedChunk,( 0, 0,0))
+        chk.flattenStrong()
 
     def deskW(self):
         return self.deskSize[0]
